@@ -1,0 +1,59 @@
+# === PYTHON / DJANGO ===
+
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django-specific
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Environment
+.env
+*.env
+
+# Migrations
+**/migrations/__pycache__/
+**/migrations/*.pyc
+# Uncomment if you want to ignore migration files
+# **/migrations/*.py
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing / Coverage
+.cache/
+htmlcov/
+coverage.xml
+.pytest_cache/
+
+# Type checking
+.mypy_cache/
+.pyright/
+
+# === REACT / VITE FRONTEND ===
+
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
