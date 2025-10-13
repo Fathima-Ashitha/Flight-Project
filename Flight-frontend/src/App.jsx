@@ -13,10 +13,14 @@ export default function App() {
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      {/* Regular user routes */}
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/search" element={<PrivateRoute><FlightSearch /></PrivateRoute>} />
       <Route path="/my-trips" element={<PrivateRoute><MyTrips /></PrivateRoute>} />
-      <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+
+      {/* Admin-only routes */}
+      <Route path="/admin" element={<PrivateRoute adminOnly><AdminDashboard /></PrivateRoute>} />
     </Routes>
   );
 }

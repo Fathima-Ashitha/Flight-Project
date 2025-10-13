@@ -29,3 +29,10 @@ def approve_user(request, pk):
         return Response({'detail': 'User not found'}, status=404)
     except Exception as e:
         return Response({'detail': 'Internal server error'}, status=500)
+
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

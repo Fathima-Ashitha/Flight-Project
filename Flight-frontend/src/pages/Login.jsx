@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../api/client";
 import { useNavigate, Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // ✅ Best for Vite/ESM
 
 export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -14,11 +15,23 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await API.post("/auth/login/", form);
-      localStorage.setItem("access_token", res.data.access);
-      localStorage.setItem("refresh_token", res.data.refresh);
-      navigate("/dashboard");
-    } catch {
-      setError("Invalid credentials or not approved yet.");
+      const { access, refresh } = res.data;
+
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("refresh_token", refresh);
+
+      const decoded = jwtDecode(access); // ✅ changed line
+      console.log("Decoded JWT:", decoded);
+
+      const role = decoded.is_superuser ? "admin" : "user";
+      localStorage.setItem("user_role", role);
+
+      navigate(role === "admin" ? "/admin" : "/dashboard");
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      setError(
+        err.response?.data?.detail || "Invalid credentials or not approved yet."
+      );
     }
   };
 
@@ -26,8 +39,19 @@ export default function Login() {
     <div className="container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <input name="username" placeholder="Username" onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+        <input
+          name="username"
+          placeholder="Username"
+          onChange={handleChange}
+          required
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          onChange={handleChange}
+          required
+        />
         <button type="submit">Login</button>
       </form>
       <p className="error">{error}</p>

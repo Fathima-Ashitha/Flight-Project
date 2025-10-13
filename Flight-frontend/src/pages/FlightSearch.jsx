@@ -1,44 +1,68 @@
-import { useState } from "react";
-import Navbar from "../components/Navbar";
-import API from "../api/client";
-import FlightCard from "../components/FlightCard";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import API from "../api/client"; // Adjust path if needed
+import FlightCard from "../components/FlightCard"; // Reuse your flight card component
 
 export default function FlightSearch() {
-  const [query, setQuery] = useState({ origin: "", destination: "", date: "" });
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const origin = queryParams.get("origin") || "";
+  const destination = queryParams.get("destination") || "";
+
   const [flights, setFlights] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleChange = (e) =>
-    setQuery({ ...query, [e.target.name]: e.target.value });
+  useEffect(() => {
+    async function fetchFlights() {
+      setLoading(true);
+      setError(null);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const res = await API.get("/flights/search/", { params: query });
-    setFlights(res.data);
-  };
+      try {
+        const params = {};
+        if (origin) params.origin = origin;
+        if (destination) params.destination = destination;
 
-  const bookFlight = async (flightId) => {
-    await API.post("/bookings/create/", { flight: flightId, seats_booked: 1 });
-    alert("Flight booked!");
-  };
+        const res = await API.get("/flights/search/", { params });
+        setFlights(res.data);
+      } catch (err) {
+        setError("Failed to fetch flights.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (origin || destination) {
+      fetchFlights();
+    } else {
+      // Clear flights if no params
+      setFlights([]);
+    }
+  }, [origin, destination]);
 
   return (
-    <>
-      <Navbar />
-      <div className="container">
-        <h2>Search Flights</h2>
-        <form onSubmit={handleSearch}>
-          <input name="origin" placeholder="Origin" onChange={handleChange} />
-          <input name="destination" placeholder="Destination" onChange={handleChange} />
-          <input type="date" name="date" onChange={handleChange} />
-          <button>Search</button>
-        </form>
+    <div>
+      <h2>Search Flights</h2>
+      <p>
+        Searching by{" "}
+        {origin && <strong>Origin: {origin}</strong>}
+        {origin && destination && " and "}
+        {destination && <strong>Destination: {destination}</strong>}
+        {!origin && !destination && "No search criteria provided."}
+      </p>
 
-        <div>
-          {flights.map((f) => (
-            <FlightCard key={f.id} flight={f} onBook={bookFlight} />
-          ))}
-        </div>
+      {loading && <p>Loading flights...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && !error && flights.length === 0 && (
+        <p>No flights found matching your criteria.</p>
+      )}
+
+      <div>
+        {flights.map((flight) => (
+          <FlightCard key={flight.id} flight={flight} />
+        ))}
       </div>
-    </>
+    </div>
   );
 }

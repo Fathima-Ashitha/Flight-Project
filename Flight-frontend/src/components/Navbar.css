@@ -1,0 +1,76 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #121427; /* dark navy */
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.nav-left {
+  flex: 1;
+}
+
+.nav-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-input {
+  padding: 0.35rem 0.5rem;  /* slightly smaller padding */
+  border-radius: 4px;
+  border: none;
+  font-size: 1rem;
+  background-color: #1f2345;
+  color: white;
+}
+
+.search-input.small {
+  width: 140px;
+}
+
+.search-button {
+  background-color: #3a8dde; /* nice blue */
+  color: white;
+  border: none;
+  padding: 0.35rem 0.7rem; /* reduced padding */
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  min-width: 80px;
+  max-width: 120px;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.search-button:hover {
+  background-color: #2e6fbb; /* darker blue on hover */
+}
+
+.nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-right button {
+  background-color: #ff4d4f; /* red logout */
+  border: none;
+  color: white;
+  padding: 0.35rem 0.7rem;  /* reduced padding */
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  min-width: 80px;
+  max-width: 120px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-right button:hover {
+  background-color: #e04344;
+}

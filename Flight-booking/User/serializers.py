@@ -47,3 +47,27 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
             raise serializers.ValidationError("User account is inactive.")
 
         return data
+    
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        user = self.user
+
+        if user.approval_status != "APPROVED":
+            raise AuthenticationFailed("User is not approved yet.")
+
+        # ✅ Generate tokens manually
+        refresh = RefreshToken.for_user(user)
+        refresh['is_superuser'] = user.is_superuser  # Embed in both tokens
+
+        # ✅ Replace the original access/refresh with custom ones
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        return data
