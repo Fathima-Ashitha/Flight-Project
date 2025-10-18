@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({ onSearch}) => {
   const navigate = useNavigate();
   const [searchType, setSearchType] = useState("origin"); // select box state
   const [searchValue, setSearchValue] = useState("");      // text input state
@@ -16,7 +16,7 @@ const handleSearch = () => {
   const query = new URLSearchParams();
   if (searchValue.trim()) {
     query.append(searchType, searchValue.trim());
-    navigate(`/search?${query.toString()}`);  // <-- change here
+    navigate(`?${query.toString()}`);  // <-- change here
   }
 };
 

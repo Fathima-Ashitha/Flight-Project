@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import API from "../api/client";
 import FlightCard from "../components/FlightCard";
 import "./AdminDashboard.css";
+import { useSearchParams } from "react-router-dom";
 
 export default function Dashboard() {
   const [view, setView] = useState("all-flights");
@@ -21,9 +22,50 @@ export default function Dashboard() {
     destination: "",
   });
 
-  // Fetch flights on mount
+  const [urlSearchParams] = useSearchParams();
+
   useEffect(() => {
-    fetchFlights();
+    const origin = urlSearchParams.get("origin") || "";
+    const destination = urlSearchParams.get("destination") || "";
+
+    // Only update if different to prevent infinite loops
+    if (
+      origin !== searchParams.origin ||
+      destination !== searchParams.destination
+    ) {
+      setSearchParams({ origin, destination });
+      setView("all-flights");
+    }
+
+    // fetchBookings only once on mount
+  }, [urlSearchParams]);
+
+  useEffect(() => {
+    const fetchFlightsFiltered = async () => {
+      setFlightsLoading(true);
+      setFlightsError("");
+      try {
+        const params = new URLSearchParams();
+        if (searchParams.origin) params.append("origin", searchParams.origin);
+        if (searchParams.destination)
+          params.append("destination", searchParams.destination);
+
+        const queryStr = params.toString();
+        const url = queryStr ? `/flights/?${queryStr}` : "/flights/";
+
+        const res = await API.get(url);
+        setFlights(res.data);
+      } catch (err) {
+        setFlightsError("Failed to fetch flights.");
+        setFlights([]);
+      }
+      setFlightsLoading(false);
+    };
+
+    fetchFlightsFiltered();
+  }, [searchParams]);
+
+  useEffect(() => {
     fetchBookings();
   }, []);
 
@@ -56,28 +98,8 @@ export default function Dashboard() {
     setBookingsLoading(false);
   };
 
-  // Search flights by origin/destination
-  const searchFlights = async (origin, destination) => {
-    setFlightsLoading(true);
-    setFlightsError("");
-    try {
-      const params = new URLSearchParams();
-      if (origin) params.append("origin", origin);
-      if (destination) params.append("destination", destination);
-
-      const res = await API.get(`/flights/search?${params.toString()}`);
-      setFlights(res.data);
-      setView("all-flights");
-      setSearchParams({ origin, destination });
-    } catch (err) {
-      setFlightsError("Failed to fetch flights.");
-      setFlights([]);
-    }
-    setFlightsLoading(false);
-  };
-
   const handleSearch = (origin, destination) => {
-    searchFlights(origin, destination);
+    setSearchParams({origin, destination});
   };
 
   // Book a flight with seat selection prompt
@@ -132,7 +154,9 @@ export default function Dashboard() {
           gap: "1rem",
         }}
       >
-        {flights.map((flight) => (
+        {flights
+        .filter((flight) => flight.seats_available > 0 && flight.status !== "Cancelled")
+        .map((flight) => (
           <FlightCard
             key={flight.id}
             flight={flight}

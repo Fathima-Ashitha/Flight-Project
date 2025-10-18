@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import Navbar from "../components/Navbar";
 import API from "../api/client";
 import FlightCard from "../components/FlightCard";
 import "./AdminDashboard.css";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 export default function AdminDashboard() {
   const [view, setView] = useState("home");
   const [pendingUsers, setPendingUsers] = useState([]);
   const [flights, setFlights] = useState([]);
   const [detailedFlight, setDetailedFlight] = useState(null);
+  const location = useLocation();
 
   const [flightForm, setFlightForm] = useState({
     flight_no: "",
@@ -33,9 +35,25 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPendingUsers();
-    fetchFlights();
-  }, []);
+    const init = async () => {
+      fetchPendingUsers();
+
+      const params = new URLSearchParams(location.search);
+      const origin = params.get("origin");
+      const destination = params.get("destination");
+
+      if (origin || destination) {
+        setSearchParams({ origin: origin || "", destination: destination || "" });
+        await searchFlights(origin, destination); // ✅ wait for it
+      } else {
+        fetchFlights();
+      }
+    };
+
+  init(); // invoke the async wrapper
+}, [location.search]);
+
+
 
   const fetchPendingUsers = async () => {
     try {
@@ -139,7 +157,7 @@ export default function AdminDashboard() {
       if (origin) params.append("origin", origin);
       if (destination) params.append("destination", destination);
 
-      const res = await API.get(`/flights/search?${params.toString()}`);
+      const res = await API.get(`/flights/?${params.toString()}`);
       setFlights(res.data);
       setView("search-results");
     } catch (err) {
